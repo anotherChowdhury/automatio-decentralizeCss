@@ -6,7 +6,8 @@
   "author": "anotherChowdhury <umarfaruk.chowdhury@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "lint": "yarn eslint --fix ./*.js"
   },
   "devDependencies": {
     "eslint": "^7.27.0",

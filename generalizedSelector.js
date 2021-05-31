@@ -175,6 +175,7 @@ const getGeneralizedAttributes = ({ selector, attribute }) => {
   let nameList = attribute.split('-');
 
   if (nameList.length == 1) {
+    // if attribute name is like next page which is not random
     if (!isRandom(nameList[0]))
       return `[${selector}${getSeclectorSymbol(selector)}="${nameList[0]}"]`;
     return '';
