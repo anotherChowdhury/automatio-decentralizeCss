@@ -174,7 +174,7 @@ function decentralizeCss(cssPath) {
 
   const getCss = () => {
     if (selector && attributes) {
-      genericCss += getGeneralziedCss({ tag, selector, attributes })
+      genericCss += getGeneralizedCss({ tag, selector, attributes })
       resetData()
     }
   }
@@ -209,20 +209,32 @@ function decentralizeCss(cssPath) {
       case '"':
         break
       case '=':
-        currentWord = currentWord.replace('"', '')
-        selector = currentWord
-        currentWord = ''
+        currentWordList = currentWord.replace('"', '').trim().split(' ')
+        if (currentWordList.length == 1) {
+          selector = currentWordList[0].trim()
+          currentWord = ''
+        } else {
+          genericCss += currentWordList[0] + ' '
+          selector = currentWordList[currentWordList.length - 1].trim()
+          currentWord = ''
+        }
         break
       case '<':
       case '>':
         getCss()
         genericCss += ' ' + char + ' '
       case ']':
+        if (!selector) {
+          genericCss += `[${currentWord}] `
+          currentWord = ''
+          break
+        }
         if (attributes) attributes += ' ' + currentWord
         else attributes = currentWord
-
         getCss()
         break
+      case ' ':
+        currentWord += char
       default:
         currentWord += char
     }
@@ -231,7 +243,7 @@ function decentralizeCss(cssPath) {
   currentWord = currentWord.trim()
   if (htmlTagSet.has(currentWord.trim())) genericCss += ' ' + currentWord
   else if (selector && currentWord) {
-    genericCss += getGeneralziedCss({ tag, selector, attributes: currentWord })
+    genericCss += getGeneralizedCss({ tag, selector, attributes: currentWord })
   } else {
     genericCss += currentWord
   }
@@ -240,26 +252,29 @@ function decentralizeCss(cssPath) {
   console.log(`Input ${cssPath}`)
 }
 
-function getGeneralziedCss({ tag, selector, attributes }) {
+function getGeneralizedCss({ tag, selector, attributes }) {
   console.log(attributes)
   let genericCss = tag
-  const attributeList = attributes.split(' ')
-  attributeList.forEach((attribute) => {
-    genericCss += getGeneralizedAttributes({ selector, attribute })
-  })
+
+  if (attributes.indexOf('-') > -1) {
+    const attributeList = attributes.split(' ')
+    attributeList.forEach((attribute) => {
+      genericCss += getGeneralizedAttributes({ selector, attribute })
+    })
+  } else {
+    genericCss += getGeneralizedAttributes({ selector, attribute: attributes })
+  }
 
   return genericCss
 }
 
 /*
-decentralizeCss(`h2.heading--2eONR.heading-2--1OnX8.title--3yncE.block--3v-Ow`)
-// h2[class*="heading--"][class*="heading-2--"][class*="title--"][class*="block--"]
 
-decentralizeCss(`[class="actions--3vB_X nextButton--25Tal gtm-next-page"] div`)
-// [class*="actions--"][class*="nextButton--"][class*="gtm-next-page"] div
+[data-testid] [class="top-ads-container--1Jeoq gtm-top-ad"]:nth-of-type(1) [class="heading--2eONR heading-2--1OnX8 title--3yncE block--3v-Ow"]
  */
 
-const getGeneralizedAttributes = ({ tag, selector, attribute }) => {
+const getGeneralizedAttributes = ({ selector, attribute }) => {
+  console.log(attribute)
   let genericCss = ''
   let nameList = attribute.split('-')
 
@@ -280,6 +295,8 @@ const getGeneralizedAttributes = ({ tag, selector, attribute }) => {
     } else {
       if (name.length == 1 && idx + 1 <= nameList.length - 1 && !nameList[idx + 1]) currentAttributeName += `${name}--`
       else if (currentAttributeName) {
+        console.log(selector)
+        console.log(selectorSymbol[selector])
         genericCss += `[${selector}${selectorSymbol[selector]}="${currentAttributeName}"]`
         currentAttributeName = ''
       }
@@ -293,4 +310,6 @@ const getGeneralizedAttributes = ({ tag, selector, attribute }) => {
   return genericCss
 }
 
-decentralizeCss(`[aria-label="next page"] a > div:nth-of-type(1)`)
+decentralizeCss(
+  `[data-testid] [class="top-ads-container--1Jeoq gtm-top-ad"]:nth-of-type(1) [class="heading--2eONR heading-2--1OnX8 title--3yncE block--3v-Ow"]`
+)
