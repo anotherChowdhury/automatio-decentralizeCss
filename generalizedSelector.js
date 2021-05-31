@@ -11,6 +11,7 @@ const htmlTagSet = new Set([
   'h4',
   'h5',
   'h6',
+  'a',
   'div',
   'ul',
   'li',
@@ -63,7 +64,7 @@ function decentralizeCss(cssPath) {
     const char = cssPath[i];
     switch (char) {
       case '.':
-        attributes = currentWord;
+        attributes = currentWord.trim();
         getCss();
         selector = 'class';
         if (htmlTagSet.has(currentWord)) {
@@ -73,10 +74,10 @@ function decentralizeCss(cssPath) {
         }
         break;
       case '#':
-        attributes = currentWord;
+        attributes = currentWord.trim();
         getCss();
         selector = 'id';
-        if (htmlTagSet.has(currentWord)) {
+        if (htmlTagSet.has(currentWord.trim())) {
           tag = currentWord;
           currentWord = '';
           attributes = '';
@@ -101,9 +102,14 @@ function decentralizeCss(cssPath) {
         break;
       case '<':
       case '>':
-        attributes = currentWord;
-        getCss();
-        genericCss += ' ' + char + ' ';
+        if (!selector) {
+          genericCss += currentWord + char + ' ';
+          currentWord = '';
+        } else {
+          attributes = currentWord;
+          getCss();
+          genericCss += ' ' + char;
+        }
         break;
       case ']':
         if (!selector) {
@@ -111,11 +117,16 @@ function decentralizeCss(cssPath) {
           currentWord = '';
           break;
         }
-        console.log(currentWord);
         if (attributes) attributes += ' ' + currentWord;
         else attributes = currentWord;
         getCss();
         break;
+      // case ' ':
+      //   if (htmlTagSet.has(currentWord.trim())) {
+      //     genericCss += ' ' + currentWord;
+      //     currentWord = '';
+      //   }
+      //   break;
       default:
         currentWord += char;
     }
@@ -151,7 +162,6 @@ function getGeneralizedCss({ tag, selector, attributes }) {
 const getGeneralizedAttributes = ({ selector, attribute }) => {
   let genericCss = '';
   let nameList = attribute.split('-');
-  console.log(nameList);
 
   if (nameList.length == 1) {
     if (!isRandom(nameList[0]))
@@ -188,9 +198,7 @@ const getGeneralizedAttributes = ({ selector, attribute }) => {
     }
   }
   if (currentAttributeName) {
-    const symbol = selectorSymbol[selector + last]
-      ? selectorSymbol[selector + last]
-      : '';
+    const symbol = getSeclectorSymbol(selector + last);
 
     genericCss += `[${selector}${symbol}="${currentAttributeName}"]`;
   }
