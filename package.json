@@ -2,9 +2,12 @@
   "name": "automatio-interview-project",
   "version": "1.0.0",
   "description": "This task is for decentralizeCss",
-  "main": "index.js",
+  "main": "app.js",
   "author": "anotherChowdhury <umarfaruk.chowdhury@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node app.js"
+  },
   "devDependencies": {
     "eslint": "^7.27.0",
     "eslint-plugin-prettier": "^3.4.0",

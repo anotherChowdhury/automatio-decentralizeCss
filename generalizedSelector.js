@@ -1,315 +1,209 @@
-/*
-decentralizeCss(`h2.heading--2eONR.heading-2--1OnX8.title--3yncE.block--3v-Ow`)
-// h2[class*="heading--"][class*="heading-2--"][class*="title--"][class*="block--"]
-
-decentralizeCss(`[class="actions--3vB_X nextButton--25Tal gtm-next-page"] div`)
-// [class*="actions--"][class*="nextButton--"][class*="gtm-next-page"] div
-
-decentralizeCss(`.css-ntxj49 [class="css-8buua1-Typeahead"]`)
-// [class*="css-"] [class*="css-"][class*="-Typeahead"]
-
-decentralizeCss(`div.css-18eqh53-Input > input#downshift-0-input`)
-// div[class*="css-"][class*="-Input"] > input[id^="downshift-"][id$="-input"]
-
-decentralizeCss(`[id="downshift-0-input"]`)
-// input[id^="downshift-"][id$="-input"]
-
-*/
-
-const { cursorTo } = require('readline')
-
 const selectorSymbol = {
   class: '*',
   id: '^',
-  idLast: '$'
-}
+  idLast: '$',
+};
 
-const htmlTagSet = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'ul', 'li', 'body', 'input', 'button'])
+const htmlTagSet = new Set([
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'div',
+  'ul',
+  'li',
+  'body',
+  'input',
+  'button',
+]);
 
 function isRandom(str) {
-  if (!str || str.length == 1) return true
-  let regex = ''
+  if (!str || str.length == 1) return true;
+  let regex = '';
 
-  if (str.length == 2) regex = new RegExp('\\d[a-z|A-Z]|[a-z|A-Z]\\d|[a-z][A-Z]|[A-Z][a-z]')
-  else regex = new RegExp('\\d[a-z|A-Z]|[a-z|A-Z]\\d')
+  if (str.length == 2)
+    regex = new RegExp('\\d[a-z|A-Z]|[a-z|A-Z]\\d|[a-z][A-Z]|[A-Z][a-z]');
+  else regex = new RegExp('\\d[a-z|A-Z]|[a-z|A-Z]\\d');
   // it is a random string if two consecutive string is a mix of number,uppercase,lowercase
-  let test = false
+  let test = false;
 
   for (let i = 0; i < str.length - 1; i++) {
-    const curr = str[i] + str[i + 1]
-    test = regex.test(curr)
-    if (test) break
+    const curr = str[i] + str[i + 1];
+    test = regex.test(curr);
+    if (test) break;
   }
-  return test
+  return test;
 }
 
-// const decentralizeCss = (cssPath) => {
-//   let generalizedCss = ''
-//   let idx = cssPath.length - 1
-//   let currentWord = ''
-//   while (idx >= 0) {
-//     console.log(currentWord)
-//     const currentCharacter = cssPath[idx]
-//     if (!symbolToWords[currentCharacter]) {
-//       if (['-',']',"="].includes(currentCharacter)) {
-//         if (isRandom(currentWord)) currentWord = ''
-//       }
-//       currentWord = currentCharacter + currentWord
-//     } else {
-//       generalizedCss = `[${symbolToWords[currentCharacter]}*="${currentWord}"]` + generalizedCss
-//       currentWord = ''
-//     }
-
-//     if (htmlTagSet.has(currentWord)) {
-//       generalizedCss = currentWord + generalizedCss
-//       currentWord = ''
-//     }
-//     idx--
-//   }
-
-//   return generalizedCss
-// }
-
-// second approach
-
-// [class="actions--3vB_X nextButton--25Tal gtm-next-page"] div
-
-// const decentralizeCss = (cssPath) => {
-//   let genericCss = ''
-//   let cssPathList = ''
-//   const classSelectionExists = cssPath.indexOf(']')
-//   if (classSelectionExists > -1) {
-//     const opening = cssPath.indexOf('[')
-//     opening < classSelectionExists ? (cssPathList = cssPath.split('[')) : (cssPathList = cssPath.split(']'))
-//     console.log(cssPathList)
-//   } else cssPathList = cssPath.split(' ')
-
-//   for (const path of cssPathList) {
-//     const a = getGeneralizedCss(path)
-//     console.log(a)
-//     genericCss += a
-//   }
-//   console.log(genericCss)
-//   return genericCss
-// }
-
-// const getGeneralizedCss = (str, tag = '') => {
-//   let genericCss = ''
-//   //[class="actions--3vB_X nextButton--25Tal gtm-next-page"]
-//   if (str[0] == '[') return handleGeneralizedSelector(str)
-//   else if (str.indexOf('.') > -1) return handleClassSelector(str)
-//   else if (str.indexOf('#') > -1) return handleIdSelector(str)
-// else {
-//   const nameList = str.split('-')
-//   let currentAttributeName = ''
-//   for (let idx = 0; idx < nameList.length; idx++) {
-//     const name = nameList[idx].replace('"').trim()
-
-//     if (htmlTagSet.has(name)) {
-//       console.log(name)
-//       if (!genericCss) genericCss += ' ' + name
-//       else genericCss += name
-//     } else if (!isRandom(name)) {
-//       if (idx + 1 <= nameList.length - 1) {
-//         if (!nameList[idx + 1]) currentAttributeName += `${name}--`
-//         else currentAttributeName += `${name}-`
-//       } else {
-//         if (!currentAttributeName) currentAttributeName = '-' + name
-//         else currentAttributeName += name
-//       }
-//     } else {
-//       if (currentAttributeName) genericCss += `[${tag}${symbolToWords[tag]}="${currentAttributeName}"]`
-//       currentAttributeName = ''
-//     }
-//   }
-//   if (currentAttributeName) genericCss += `[${tag}${symbolToWords[tag]}="${currentAttributeName}"]`
-//   return genericCss
-// }
-// }
-
-// const handleGeneralizedSelector = (str) => {
-//   str = str.substring(1, str.length)
-//   let genericCss = ''
-//   const pathList = str.split('=')
-//   const tag = pathList[0]
-//   const selectorList = pathList[pathList.length - 1].split(' ')
-//   selectorList.forEach((element) => {
-//     element = element.replace('"', '')
-//     genericCss += getGeneralizedCss(element, tag)
-//   })
-//   console.log(genericCss)
-//   return genericCss
-// }
-
-// const handleClassSelector = (str) => {
-//   let genericCss = ''
-//   const selectorList = str.split('.')
-//   selectorList.forEach((element) => (genericCss += getGeneralizedCss(element, 'class')))
-//   return genericCss
-// }
-
-// const handleIdSelector = (str) => {
-//   let genericCss = ''
-//   const selectorList = str.split('#')
-//   selectorList.forEach((element, idx) => (genericCss += getGeneralizedCss(element, 'id')))
-//   return genericCss
-// }
-
-// decentralizeCss('.css-ntxj49 [class="css-8buua1-Typeahead"]')
-
 function decentralizeCss(cssPath) {
-  cssPath = cssPath.trim()
-  let genericCss = ''
-  let tag = ''
-  let selector = ''
-  let attributes = ''
-  let currentWord = ''
+  cssPath = cssPath.trim();
+  let genericCss = '';
+  let tag = '';
+  let selector = '';
+  let attributes = '';
+  let currentWord = '';
 
   const resetData = () => {
-    attributes = ''
-    tag = ''
-    selector = ''
-    currentWord = ''
-  }
+    attributes = '';
+    tag = '';
+    selector = '';
+    currentWord = '';
+  };
 
   const getCss = () => {
     if (selector && attributes) {
-      genericCss += getGeneralizedCss({ tag, selector, attributes })
-      resetData()
+      genericCss += getGeneralizedCss({ tag, selector, attributes });
+      resetData();
     }
-  }
+  };
 
   for (let i = 0; i < cssPath.length; i++) {
-    const char = cssPath[i]
+    const char = cssPath[i];
     switch (char) {
       case '.':
-        attributes = currentWord
-        getCss()
-        selector = 'class'
+        attributes = currentWord;
+        getCss();
+        selector = 'class';
         if (htmlTagSet.has(currentWord)) {
-          tag = currentWord
-          currentWord = ''
-          attributes = ''
+          tag = currentWord;
+          currentWord = '';
+          attributes = '';
         }
-
-        break
+        break;
       case '#':
-        attributes = currentWord
-        getCss()
-        selector = 'id'
+        attributes = currentWord;
+        getCss();
+        selector = 'id';
         if (htmlTagSet.has(currentWord)) {
-          tag = currentWord
-          currentWord = ''
-          attributes = ''
+          tag = currentWord;
+          currentWord = '';
+          attributes = '';
         }
-        break
+        break;
       case '[':
-        getCss()
-        break
+        attributes = currentWord;
+        getCss();
+        break;
       case '"':
-        break
+        break;
       case '=':
-        currentWordList = currentWord.replace('"', '').trim().split(' ')
+        currentWordList = currentWord.replace('"', '').trim().split(' ');
         if (currentWordList.length == 1) {
-          selector = currentWordList[0].trim()
-          currentWord = ''
+          selector = currentWordList[0].trim();
+          currentWord = '';
         } else {
-          genericCss += currentWordList[0] + ' '
-          selector = currentWordList[currentWordList.length - 1].trim()
-          currentWord = ''
+          genericCss += currentWordList[0] + ' ';
+          selector = currentWordList[currentWordList.length - 1].trim();
+          currentWord = '';
         }
-        break
+        break;
       case '<':
       case '>':
-        getCss()
-        genericCss += ' ' + char + ' '
+        attributes = currentWord;
+        getCss();
+        genericCss += ' ' + char + ' ';
+        break;
       case ']':
         if (!selector) {
-          genericCss += `[${currentWord}] `
-          currentWord = ''
-          break
+          genericCss += `[${currentWord}] `;
+          currentWord = '';
+          break;
         }
-        if (attributes) attributes += ' ' + currentWord
-        else attributes = currentWord
-        getCss()
-        break
-      case ' ':
-        currentWord += char
+        console.log(currentWord);
+        if (attributes) attributes += ' ' + currentWord;
+        else attributes = currentWord;
+        getCss();
+        break;
       default:
-        currentWord += char
+        currentWord += char;
     }
   }
 
-  currentWord = currentWord.trim()
-  if (htmlTagSet.has(currentWord.trim())) genericCss += ' ' + currentWord
+  currentWord = currentWord.trim();
+  if (htmlTagSet.has(currentWord.trim())) genericCss += ' ' + currentWord;
   else if (selector && currentWord) {
-    genericCss += getGeneralizedCss({ tag, selector, attributes: currentWord })
+    genericCss += getGeneralizedCss({ tag, selector, attributes: currentWord });
   } else {
-    genericCss += currentWord
+    genericCss += currentWord;
   }
 
-  console.log(genericCss)
-  console.log(`Input ${cssPath}`)
+  console.log(`Input ${cssPath}`);
+  console.log(`Output ${genericCss}`);
 }
 
 function getGeneralizedCss({ tag, selector, attributes }) {
-  console.log(attributes)
-  let genericCss = tag
-
+  attributes = attributes.trim();
+  let genericCss = tag;
   if (attributes.indexOf('-') > -1) {
-    const attributeList = attributes.split(' ')
+    const attributeList = attributes.split(' ');
     attributeList.forEach((attribute) => {
-      genericCss += getGeneralizedAttributes({ selector, attribute })
-    })
+      genericCss += getGeneralizedAttributes({ selector, attribute });
+    });
   } else {
-    genericCss += getGeneralizedAttributes({ selector, attribute: attributes })
+    genericCss += getGeneralizedAttributes({ selector, attribute: attributes });
   }
 
-  return genericCss
+  return genericCss;
 }
 
-/*
-
-[data-testid] [class="top-ads-container--1Jeoq gtm-top-ad"]:nth-of-type(1) [class="heading--2eONR heading-2--1OnX8 title--3yncE block--3v-Ow"]
- */
-
 const getGeneralizedAttributes = ({ selector, attribute }) => {
-  console.log(attribute)
-  let genericCss = ''
-  let nameList = attribute.split('-')
+  let genericCss = '';
+  let nameList = attribute.split('-');
+  console.log(nameList);
 
-  let currentAttributeName = ''
-  let last = ''
+  if (nameList.length == 1) {
+    if (!isRandom(nameList[0]))
+      return `[${selector}${getSeclectorSymbol(selector)}="${nameList[0]}"]`;
+    return '';
+  }
+
+  let currentAttributeName = '';
+  let last = '';
   for (let idx = 0; idx < nameList.length; idx++) {
-    if (selector == 'id' && idx == nameList.length - 1) last = 'Last'
-    const name = nameList[idx].replace('"').trim()
+    if (selector == 'id' && idx == nameList.length - 1) last = 'Last';
+    const name = nameList[idx].replace('"').trim();
 
     if (!isRandom(name)) {
       if (idx + 1 <= nameList.length - 1) {
-        if (!nameList[idx + 1]) currentAttributeName += `${name}--`
-        else currentAttributeName += `${name}-`
+        if (!nameList[idx + 1]) currentAttributeName += `${name}--`;
+        else currentAttributeName += `${name}-`;
       } else {
-        if (!currentAttributeName) currentAttributeName = '-' + name
-        else currentAttributeName += name
+        if (!currentAttributeName) currentAttributeName = '-' + name;
+        else currentAttributeName += name;
       }
     } else {
-      if (name.length == 1 && idx + 1 <= nameList.length - 1 && !nameList[idx + 1]) currentAttributeName += `${name}--`
+      if (
+        name.length == 1 &&
+        idx + 1 <= nameList.length - 1 &&
+        !nameList[idx + 1]
+      )
+        currentAttributeName += `${name}--`;
       else if (currentAttributeName) {
-        console.log(selector)
-        console.log(selectorSymbol[selector])
-        genericCss += `[${selector}${selectorSymbol[selector]}="${currentAttributeName}"]`
-        currentAttributeName = ''
+        const symbol = getSeclectorSymbol(selector);
+        genericCss += `[${selector}${symbol}="${currentAttributeName}"]`;
+        currentAttributeName = '';
       }
     }
   }
-  if (currentAttributeName)
-    genericCss += `[${selector}${
-      selectorSymbol[selector + last] ? selectorSymbol[selector + last] : ''
-    }="${currentAttributeName}"]`
+  if (currentAttributeName) {
+    const symbol = selectorSymbol[selector + last]
+      ? selectorSymbol[selector + last]
+      : '';
 
-  return genericCss
-}
+    genericCss += `[${selector}${symbol}="${currentAttributeName}"]`;
+  }
+  return genericCss;
+};
 
-decentralizeCss(
-  `[data-testid] [class="top-ads-container--1Jeoq gtm-top-ad"]:nth-of-type(1) [class="heading--2eONR heading-2--1OnX8 title--3yncE block--3v-Ow"]`
-)
+const getSeclectorSymbol = (selector) => {
+  return selectorSymbol[selector] ? selectorSymbol[selector] : '';
+};
+
+module.exports = {
+  selectorSymbol,
+  getGeneralizedAttributes,
+  getGeneralizedCss,
+  decentralizeCss,
+};
