@@ -3,8 +3,10 @@
     "node": true,
     "es6": true
   },
+  "extends": ["prettier"],
   "plugins": ["prettier"],
   "rules": {
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "max-len": ["warn", { "code": 120, "comments": 150 }]
   }
 }
