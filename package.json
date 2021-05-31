@@ -6,6 +6,9 @@
   "author": "anotherChowdhury <umarfaruk.chowdhury@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^8.4.0"
+    "eslint": "^7.27.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "mocha": "^8.4.0",
+    "prettier": "^2.3.0"
   }
 }
