@@ -4,5 +4,8 @@
   "description": "This task is for decentralizeCss",
   "main": "index.js",
   "author": "anotherChowdhury <umarfaruk.chowdhury@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^8.4.0"
+  }
 }
