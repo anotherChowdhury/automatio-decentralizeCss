@@ -39,6 +39,12 @@ function isRandom(str) {
 }
 
 function decentralizeCss(cssPath) {
+  /*
+  This function evaluates every charcter and gets the tag, selector and attributes.
+  When it hits a special character such as "square braces",".","#","<",">" it calls the getCss function  
+  getCss function checks if selector & attribtues exists if it does, 
+  it calls the getGeneralizedCss and then reset the values by calling resetData Function
+  */
   cssPath = cssPath.trim();
   let genericCss = '';
   let tag = '';
@@ -47,6 +53,7 @@ function decentralizeCss(cssPath) {
   let currentWord = '';
 
   const resetData = () => {
+    // resting data after adding css
     attributes = '';
     tag = '';
     selector = '';
@@ -121,12 +128,6 @@ function decentralizeCss(cssPath) {
         else attributes = currentWord;
         getCss();
         break;
-      // case ' ':
-      //   if (htmlTagSet.has(currentWord.trim())) {
-      //     genericCss += ' ' + currentWord;
-      //     currentWord = '';
-      //   }
-      //   break;
       default:
         currentWord += char;
     }
@@ -145,6 +146,12 @@ function decentralizeCss(cssPath) {
 }
 
 function getGeneralizedCss({ tag, selector, attributes }) {
+  /*
+  This function takes the tag,selector and attributes.
+  breaks down the attributes based on spaces if there is any "-" in the attributes and callls 
+  getGeneralizedAttributes forEach attribute. else calls the getGeneralizedAttributes attribute 
+  with the whole attributes string,gets the generalized attributes  and add tag if exists and returns te generaliized css 
+  */
   attributes = attributes.trim();
   let genericCss = tag;
   if (attributes.indexOf('-') > -1) {
@@ -160,6 +167,10 @@ function getGeneralizedCss({ tag, selector, attributes }) {
 }
 
 const getGeneralizedAttributes = ({ selector, attribute }) => {
+  /*
+  This function takes the selector and attributes.breaks down the attributes based on "-" 
+  and add them as long as the string is not randmized returns all generalized attributes 
+  */
   let genericCss = '';
   let nameList = attribute.split('-');
 
